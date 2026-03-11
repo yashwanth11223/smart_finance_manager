@@ -1,0 +1,82 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Login - Smart Finance Manager{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/auth.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🔐 Login</h1>
+            <p>Welcome back to Smart Finance Manager</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                <div class="show-password-container">
+                    <input type="checkbox" id="show-password-login" onclick="togglePasswordCheckbox('id_password', 'show-password-login')">
+                    {% comment %} <label for="show-password-login">Show Password</label> {% endcomment %}
+                </div>
+                {% if form.password.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{% url 'signuppage' %}">Create one here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordCheckbox(fieldId, checkboxId) {
+    const passwordField = document.getElementById(fieldId);
+    const checkbox = document.getElementById(checkboxId);
+    
+    if (checkbox.checked) {
+        passwordField.type = 'text';
+    } else {
+        passwordField.type = 'password';
+    }
+}
+</script>
+{% endblock content %}

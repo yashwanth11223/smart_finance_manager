@@ -1,0 +1,130 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Transactions - Smart Finance Manager{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/transcations.css' %}">
+{% endblock css %}
+    
+
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Transactions Header -->
+    <div class="transactions-header">
+        <h1>All Transactions</h1>
+        <p>View and manage all your expenses and additions</p>
+    </div>
+
+    <!-- Back Button -->
+    <a href="{% url 'homepage' %}" class="back-btn">← Back to Dashboard</a>
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-label">Current Balance</div>
+            <div class="stat-value" style="color: #27ae60;">₹{{ account.current_balance }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value" style="color: #e74c3c;">
+                ₹{{ total_expenses }}
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Additions</div>
+            <div class="stat-value" style="color: #3498db;">₹{{ account.total_amount }}</div>
+        </div>
+        <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='{% url 'receiptspage' %}'">
+            <div class="stat-label">📸 Receipts</div>
+            <div class="stat-value" style="color: #f39c12;">{{ receipts_count }}</div>
+            <small style="color: #666; font-size: 0.75rem; margin-top: 5px; display: block;">Click to view all receipts</small>
+        </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="card transaction-card">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h5 class="mb-0">Transaction History</h5>
+            <a href="{% url 'download_pdf' %}" class="btn btn-sm btn-light">
+                <i class="bi bi-download"></i> 📥 Download PDF
+            </a>
+        </div>
+        
+        <div style="padding: 20px;">
+            {% if transactions %}
+                {% for transaction in transactions %}
+                    <div class="transaction-row {% if transaction.transaction_type == 'expense' %}expense{% else %}addition{% endif %}">
+                        <div class="transaction-info">
+                            <div class="transaction-type">
+                                {% if transaction.transaction_type == 'expense' %}
+                                    ➖ Expense
+                                {% else %}
+                                    ➕ Addition
+                                {% endif %}
+                            </div>
+                            <div class="transaction-date">
+                                {{ transaction.created_at|date:"d F Y, H:i" }}
+                            </div>
+                            {% if transaction.description %}
+                                <div class="transaction-description">
+                                    {{ transaction.description }}
+                                </div>
+                            {% endif %}
+                            {% if transaction.receipt_image %}
+                                <div class="transaction-receipt">
+                                    <a href="{{ transaction.receipt_image.url }}" target="_blank" style="color: #667eea; text-decoration: none;">
+                                        <i class="bi bi-image"></i> View Receipt
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="transaction-amount {% if transaction.transaction_type == 'expense' %}amount-expense{% else %}amount-addition{% endif %}">
+                            {% if transaction.transaction_type == 'expense' %}
+                                -₹{{ transaction.amount }}
+                            {% else %}
+                                +₹{{ transaction.amount }}
+                            {% endif %}
+                        </div>
+                        <form method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="transaction_id" value="{{ transaction.id }}">
+                            <button type="submit" name="delete_transaction" class="btn-delete" onclick="return confirm('Are you sure you want to delete this transaction?');">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-message">
+                    <h5>No transactions yet</h5>
+                    <p>Start by adding amount or recording expenses from the dashboard!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer Action -->
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="{% url 'homepage' %}" class="btn btn-primary">
+            ← Go Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock content %}
+
+{% block footer %}
+    <h5  style='text-align:center'>📝 Note: Complete transaction history is permanently archived for your financial records</h5>
+    {{block.super}}
+{% endblock footer %}
+

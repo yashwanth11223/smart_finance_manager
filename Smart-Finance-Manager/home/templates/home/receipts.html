@@ -1,0 +1,93 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Receipts Gallery - Smart Finance Manager{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/receipts.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="receipts-header">
+        <h1>📸 Receipts Gallery</h1>
+        <p>All your uploaded receipt images in one place</p>
+    </div>
+
+    <a href="{% url 'homepage' %}" class="back-btn">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if transactions %}
+        <div class="row">
+            {% for transaction in transactions %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="receipt-card">
+                        <div class="receipt-image-container" onclick="showImage('{{ transaction.receipt_image.url }}')">
+                            <img src="{{ transaction.receipt_image.url }}" alt="Receipt" class="receipt-image">
+                        </div>
+                        <div class="receipt-info">
+                            <span class="receipt-badge">
+                                {% if transaction.transaction_type == 'expense' %}
+                                    ➖ Expense
+                                {% else %}
+                                    ➕ Addition
+                                {% endif %}
+                            </span>
+                            <div class="receipt-amount">₹{{ transaction.amount }}</div>
+                            {% if transaction.description %}
+                                <div class="receipt-description">
+                                    <i class="bi bi-tag"></i> {{ transaction.description }}
+                                </div>
+                            {% endif %}
+                            <div class="receipt-date">
+                                <i class="bi bi-calendar"></i> {{ transaction.created_at|date:"d M Y, H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-receipts">
+            <i class="bi bi-image"></i>
+            <h3>No receipts uploaded yet</h3>
+            <p>Upload receipt images when adding expenses to see them here</p>
+            <a href="{% url 'homepage' %}" class="back-btn mt-3">
+                <i class="bi bi-plus-circle"></i> Add Expense with Receipt
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Receipt Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Receipt" class="modal-image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showImage(imageUrl) {
+        document.getElementById('modalImage').src = imageUrl;
+        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+</script>
+{% endblock content %}

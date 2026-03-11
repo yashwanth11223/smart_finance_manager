@@ -1,0 +1,73 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Finance Dashboard{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/finance.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="summary">
+  <div class="card income">
+    <h2>Income</h2>
+    <p>₹25,000</p>
+  </div>
+  <div class="card expenses">
+    <h2>Expenses</h2>
+    <p>₹18,300</p>
+  </div>
+  <div class="card savings">
+    <h2>Savings</h2>
+    <p>₹6,700</p>
+  </div>
+</section>
+
+<section class="analytics">
+  <div class="chart">
+    <h3>Spending Breakdown</h3>
+    <div class="chart-box">[Pie Chart Placeholder]</div>
+  </div>
+
+  <div class="insight">
+    <h3>AI Insight</h3>
+    <p>🔥 You spent 15% more on food this week. Try reducing orders to save ₹1,000!</p>
+  </div>
+</section>
+
+<section class="bills">
+  <h3>Upcoming Bills & Goals</h3>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Item</th>
+      <th>Amount</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+      <td>7 Nov</td>
+      <td>Netflix</td>
+      <td>₹499</td>
+      <td>Due</td>
+    </tr>
+    <tr>
+      <td>15 Nov</td>
+      <td>Rent</td>
+      <td>₹10,000</td>
+      <td>Paid</td>
+    </tr>
+    <tr>
+      <td>30 Nov</td>
+      <td>Goa Trip</td>
+      <td>₹4,000</td>
+      <td>Saving</td>
+    </tr>
+  </table>
+</section>
+{% endblock %}
+
+
+{% block footer %}
+<p>🚀 Keep going! You’re ₹1,000 closer to your savings goal this month.</p>
+<h5>{{block.super}}</h5>
+{% endblock footer %}

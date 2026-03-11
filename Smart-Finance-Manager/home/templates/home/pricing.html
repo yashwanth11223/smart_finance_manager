@@ -1,0 +1,189 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Pricing - Smart Finance Manager{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/pricing.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="pricing-header">
+        <h1>💳 Simple, Transparent Pricing</h1>
+        <p class="mb-0">Choose the perfect plan for your financial management needs</p>
+    </div>
+
+    <div class="row">
+        <!-- Free Plan -->
+        <div class="col-md-4">
+            <div class="pricing-card">
+                <h5>🚀 Starter</h5>
+                <div class="price">Free</div>
+                <p class="price-period">Forever</p>
+                <button class="btn btn-outline-primary btn-pricing">Get Started</button>
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> Track expenses</li>
+                    <li><span class="feature-check">✓</span> Add income</li>
+                    <li><span class="feature-check">✓</span> Set savings goals</li>
+                    <li><span class="feature-check">✓</span> View transactions</li>
+                    <li><span class="feature-check">✓</span> Basic analytics</li>
+                    <li><span class="feature-cross">✗</span> Advanced reports</li>
+                    <li><span class="feature-cross">✗</span> Data export</li>
+                    <li><span class="feature-cross">✗</span> Budget alerts</li>
+                </ul>
+                <p class="small text-muted text-center">Perfect for personal use</p>
+            </div>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="col-md-4">
+            <div class="pricing-card featured">
+                <div class="badge-featured">MOST POPULAR</div>
+                <h5>⭐ Professional</h5>
+                <div class="price">₹499</div>
+                <p class="price-period">per month</p>
+                <button class="btn btn-primary btn-pricing">Start Free Trial</button>
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> Everything in Starter</li>
+                    <li><span class="feature-check">✓</span> Advanced analytics</li>
+                    <li><span class="feature-check">✓</span> Budget alerts</li>
+                    <li><span class="feature-check">✓</span> Recurring expenses</li>
+                    <li><span class="feature-check">✓</span> Category wise reports</li>
+                    <li><span class="feature-check">✓</span> Data export (CSV)</li>
+                    <li><span class="feature-check">✓</span> Priority support</li>
+                    <li><span class="feature-cross">✗</span> Team collaboration</li>
+                </ul>
+                <p class="small text-muted text-center">Best for active users</p>
+            </div>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="col-md-4">
+            <div class="pricing-card">
+                <h5>🏢 Business</h5>
+                <div class="price">₹1499</div>
+                <p class="price-period">per month</p>
+                <button class="btn btn-outline-primary btn-pricing">Contact Sales</button>
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> Everything in Pro</li>
+                    <li><span class="feature-check">✓</span> Team collaboration</li>
+                    <li><span class="feature-check">✓</span> Multiple accounts</li>
+                    <li><span class="feature-check">✓</span> Custom reports</li>
+                    <li><span class="feature-check">✓</span> API access</li>
+                    <li><span class="feature-check">✓</span> Dedicated support</li>
+                    <li><span class="feature-check">✓</span> Bank integration</li>
+                    <li><span class="feature-check">✓</span> Audit logs</li>
+                </ul>
+                <p class="small text-muted text-center">For teams and enterprises</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="comparison-table mt-5">
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Starter</th>
+                    <th>Professional</th>
+                    <th>Business</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Transaction Tracking</strong></td>
+                    <td>✓</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Analytics & Reports</strong></td>
+                    <td>Basic</td>
+                    <td>Advanced</td>
+                    <td>Custom</td>
+                </tr>
+                <tr>
+                    <td><strong>Budget Alerts</strong></td>
+                    <td>✗</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Data Export</strong></td>
+                    <td>✗</td>
+                    <td>CSV</td>
+                    <td>CSV, Excel, PDF</td>
+                </tr>
+                <tr>
+                    <td><strong>Team Collaboration</strong></td>
+                    <td>✗</td>
+                    <td>✗</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>API Access</strong></td>
+                    <td>✗</td>
+                    <td>✗</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Support</strong></td>
+                    <td>Community</td>
+                    <td>Priority Email</td>
+                    <td>24/7 Dedicated</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <h4 class="mb-4">❓ Frequently Asked Questions</h4>
+        
+        <div class="faq-item">
+            <div class="faq-question">Can I change my plan anytime?</div>
+            <div class="faq-answer">Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is there a free trial for Pro plan?</div>
+            <div class="faq-answer">Absolutely! Get 7 days of Pro features completely free. No credit card required to start.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What payment methods do you accept?</div>
+            <div class="faq-answer">We accept all major credit cards, PayPal, and bank transfers for Business plans.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Do you offer refunds?</div>
+            <div class="faq-answer">Yes, we offer a 30-day money-back guarantee if you're not satisfied with our service.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is my financial data secure?</div>
+            <div class="faq-answer">Your data is encrypted end-to-end and stored securely. We comply with GDPR and PCI-DSS standards.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Can I cancel my subscription?</div>
+            <div class="faq-answer">You can cancel anytime with no penalties. Your data remains accessible for 30 days after cancellation.</div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center mt-5 mb-5">
+        <h4>Ready to take control of your finances?</h4>
+        <p class="text-muted">Start with our free plan or try Pro for 7 days risk-free</p>
+        <a href="{% url 'signuppage' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus"></i> Get Started Now
+        </a>
+        <a href="#" class="btn btn-outline-primary btn-lg ms-2">
+        {% comment %} <a href="{% url 'financepage' %}" class="btn btn-outline-primary btn-lg ms-2"> {% endcomment %}
+            Learn More
+        </a>
+    </div>
+</div>
+{% endblock content %}
+

@@ -1,0 +1,52 @@
+.recurring-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .recurring-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    .recurring-card.subscription {
+        border-left: 4px solid #3498db;
+    }
+    .recurring-card.emi {
+        border-left: 4px solid #e67e22;
+    }
+    .recurring-card.loan {
+        border-left: 4px solid #e74c3c;
+    }
+    .badge-due-today {
+        background: #e74c3c;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+    }
+    .badge-upcoming {
+        background: #f39c12;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+    }
+    .badge-active {
+        background: #27ae60;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+    }
+    .summary-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+    .summary-box h2 {
+        margin: 0;
+        font-size: 2.5rem;
+    }

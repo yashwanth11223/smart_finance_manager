@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock title %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+ {% block css %}
+ 
+ {% endblock %}
+<body>
+    <title>Smart Finance Manager</title>
+    {% comment %} <h1>Smart Finance Manager</h1> {% endcomment %}
+    {% include 'home/navbar.html' %}
+
+    {% block content %}{% endblock content %}
+
+
+    {% block addes %}{% endblock addes %}
+    {% block footer %}
+    <h6 style='text-align:center'>Finance-manager @2025</h6>
+    <h6 style='text-align:center'> All Rights Reserved </h6>
+    {% endblock footer %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    
+    <!-- Expense Alert System -->
+    <style>
+        .expense-alert {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            max-width: 350px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .expense-alert.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .expense-alert.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .expense-alert h5 {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .expense-alert .alert-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .expense-alert p {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .expense-alert .percentage {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+    
+    <script>
+        // Function to check expense percentage
+        function checkExpenseAlert(totalAmount, currentExpense) {
+            if (!totalAmount || totalAmount <= 0) return;
+            
+            // Check if alert was already shown in this session
+            const alertShown = sessionStorage.getItem('expenseAlertShown');
+            if (alertShown === 'true') return; // Don't show again
+            
+            const expensePercentage = (currentExpense / totalAmount) * 100;
+            
+            // Check if expense exceeds 40%
+            if (expensePercentage >= 40) {
+                // Mark alert as shown
+                sessionStorage.setItem('expenseAlertShown', 'true');
+                
+                const alertContainer = document.createElement('div');
+                alertContainer.className = `expense-alert ${expensePercentage >= 60 ? 'danger' : 'warning'}`;
+                
+                const icon = expensePercentage >= 60 ? '⚠️' : '⚡';
+                const title = expensePercentage >= 60 ? 'High Spending Alert!' : 'Spending Warning!';
+                const message = expensePercentage >= 60 
+                    ? 'Bro, you are spending a LOT!! 🔥' 
+                    : 'You\'re spending quite a bit!';
+                
+                alertContainer.innerHTML = `
+                    <h5>
+                        <span class="alert-icon">${icon}</span>
+                        ${title}
+                    </h5>
+                    <p>${message}</p>
+                    <p>You've spent <span class="percentage">${expensePercentage.toFixed(1)}%</span> of your total amount</p>
+                    <p style="font-size: 12px; margin-top: 8px; opacity: 0.9;">💰 Amount: ₹${currentExpense.toFixed(2)}</p>
+                `;
+                
+                document.body.appendChild(alertContainer);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    alertContainer.style.animation = 'slideOut 0.5s ease';
+                    setTimeout(() => alertContainer.remove(), 500);
+                }, 3000);
+            }
+        }
+        
+        // Expose function globally so it can be called from forms
+        window.checkExpenseAlert = checkExpenseAlert;
+    </script>
+</body>
+</html>

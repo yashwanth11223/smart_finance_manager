@@ -1,0 +1,470 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Smart Finance Manager - Dashboard{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/homepage.css' %}">
+{% endblock css %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>Smart Finance Manager</h1>
+        <p>Track your expenses and manage your savings</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <!-- LEFT COLUMN - Expense Form & Analytics -->
+        <div class="col-md-6 mb-4">
+            <!-- Expense Form Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">➖ Add Expense</h5>
+                </div>
+                <div class="form-section">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ expense_form.expense_amount }}
+                            <button type="button" class="btn btn-voice mt-2" onclick="startVoiceInput()">
+                                <i class="bi bi-mic-fill"></i> Voice Input
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            {{ expense_form.category }}
+                        </div>
+                        <div class="form-group">
+                            {{ expense_form.description }}
+                        </div>
+                        <div class="form-group">
+                            <label for="receipt_image_input" class="form-label">
+                                📷 Upload Receipt/Photo (Optional)
+                            </label>
+                            {{ expense_form.receipt_image }}
+                            <small class="form-text text-muted">
+                                Upload a receipt image to auto-extract amount using OCR
+                            </small>
+                        </div>
+                        <button type="submit" name="expense_submit" class="btn btn-custom btn-expense w-100">
+                            <i class="bi bi-dash-circle"></i> Deduct Expense
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add Amount Form Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">➕ Add Amount</h5>
+                </div>
+                <div class="form-section">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ add_form.add_amount }}
+                        </div>
+                        <button type="submit" name="add_submit" class="btn btn-custom btn-add w-100">
+                            <i class="bi bi-plus-circle"></i> Add to Balance
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Analytics Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 Analytics This Month</h5>
+                </div>
+                <div class="form-section">
+                    <div class="chart-container">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-label">Total Added</div>
+                        <div class="stats-value">₹{{ total_additions }}</div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-label">Total Expenses</div>
+                        <div class="stats-value" style="color: #e74c3c;">₹{{ total_expenses }}</div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-label">Target Amount</div>
+                        <div class="stats-value" style="color: #3498db;">₹{{ account.target_amount }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN - Target & Transactions -->
+        <div class="col-md-6 mb-4">
+            <!-- Target Amount Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">🎯 Set Target Amount</h5>
+                </div>
+                <div class="form-section">
+                    {% if account.target_amount > 0 %}
+                        <div class="target-info">
+                            <h5 style="color: #856404; margin-bottom: 10px;">Target Savings Goal</h5>
+                            <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #ffae00ff;">₹{{ account.target_amount }}</p>
+                            <p style="margin: 5px 0 0 0; color: #666;">
+                                You need to save <strong>₹{{ remaining_target|default:"0" }}</strong> more to reach your target!
+                            </p>
+                        </div>
+                    {% endif %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ target_form.target_amount }}
+                        </div>
+                        <button type="submit" name="target_submit" class="btn btn-custom btn-target w-100">
+                            <i class="bi bi-bullseye"></i> Set Target
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recurring Expenses Card (Subscriptions/EMI/Loans) -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🔔 Recurring Payments</h5>
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addRecurringModal">
+                        ➕ Add New
+                    </button>
+                </div>
+                <div class="form-section">
+                    <!-- Due Today Alerts -->
+                    {% if due_today %}
+                        <div class="alert alert-danger mb-3">
+                            <strong>⚠️ Due Today!</strong>
+                            {% for expense in due_today %}
+                                <div class="mt-2">
+                                    <strong>{{ expense.name }}</strong>: ₹{{ expense.amount }}
+                                    {% if expense.expense_type == 'subscription' %}📱{% elif expense.expense_type == 'emi' %}💳{% else %}🏦{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Upcoming Payment Alerts -->
+                    {% if upcoming_payments %}
+                        <div class="alert alert-warning mb-3">
+                            <strong>📅 Upcoming Payments</strong>
+                            {% for expense in upcoming_payments %}
+                                <div class="mt-1">
+                                    <strong>{{ expense.name }}</strong>: ₹{{ expense.amount }} 
+                                    ({{ expense.days_until_next_payment }} day{{ expense.days_until_next_payment|pluralize }} left)
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Active Recurring Expenses List -->
+                    {% if recurring_expenses %}
+                        {% for expense in recurring_expenses %}
+                            <div class="transaction-item">
+                                <div>
+                                    <div style="font-weight: 600;">
+                                        {% if expense.expense_type == 'subscription' %}
+                                            📱 {{ expense.name }}
+                                        {% elif expense.expense_type == 'emi' %}
+                                            💳 {{ expense.name }}
+                                        {% else %}
+                                            🏦 {{ expense.name }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="transaction-date">
+                                        Next payment: {{ expense.next_payment_date|date:"d M Y" }}
+                                    </div>
+                                    <small style="color: #666;">
+                                        {{ expense.days_until_next_payment }} day{{ expense.days_until_next_payment|pluralize }} remaining
+                                    </small>
+                                </div>
+                                <div class="transaction-amount expense">
+                                    ₹{{ expense.amount }}/mo
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="stats-box mt-3" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                            <div class="stats-label">Total Monthly Recurring</div>
+                            <div class="stats-value" style="color: #e67e22;">₹{{ total_recurring }}</div>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-3">No recurring payments set up yet.</p>
+                    {% endif %}
+                    
+                    <div style="margin-top: 15px; text-align: center;">
+                        <a href="{% url 'recurring_expenses' %}" class="link-btn">
+                            {% if recurring_expenses %}
+                                View All Recurring Payments →
+                            {% else %}
+                                ➕ Add Subscription/EMI/Loan →
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">💳 Current Balance</h5>
+                </div>
+                <div class="form-section" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: bold; color: #27ae60; margin: 20px 0;">
+                        ₹{{ account.current_balance }}
+                    </div>
+                    <p style="color: #666; margin-bottom: 0;">Your available balance for expenses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+    // Initialize Analytics Chart
+    const chartData = {{ chart_data|safe }};
+    
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const analyticsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                data: chartData.values,
+                backgroundColor: chartData.colors,
+                borderColor: '#fff',
+                borderWidth: 2,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₹' + context.parsed.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Check expense alert on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalAmount = {{ account.total_amount }};
+        const totalExpenses = {{ total_expenses }};
+        
+        // Check if user is spending more than 40%
+        checkExpenseAlert(totalAmount, totalExpenses);
+    });
+    
+    // Add event listener to expense form to trigger alert after submission
+    const expenseForm = document.querySelector('form');
+    if (expenseForm) {
+        expenseForm.addEventListener('submit', function(e) {
+            // Get the expense amount value
+            const expenseInput = document.querySelector('input[name*="expense_amount"]');
+            if (expenseInput && expenseInput.value) {
+                const expenseAmount = parseFloat(expenseInput.value);
+                const totalAmount = {{ account.total_amount }};
+                
+                // Calculate new total expenses after submission
+                const newTotalExpenses = {{ total_expenses }} + expenseAmount;
+                
+                // Reset alert flag for new expense
+                sessionStorage.removeItem('expenseAlertShown');
+                
+                // Trigger alert check after a short delay
+                setTimeout(() => {
+                    checkExpenseAlert(totalAmount, newTotalExpenses);
+                }, 1000);
+            }
+        });
+    }
+    
+    // Voice Input Function
+    function startVoiceInput() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Voice recognition is not supported in your browser. Please use Chrome or Edge.');
+            return;
+        }
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.lang = 'en-IN';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        const voiceBtn = event.target.closest('button');
+        voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i> Listening...';
+        voiceBtn.classList.add('listening');
+        
+        recognition.start();
+        
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            console.log('Voice input:', transcript);
+            
+            // Send to server for processing
+            fetch('{% url "voice_expense" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ text: transcript })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.amount) {
+                        document.getElementById('expense_amount_input').value = data.amount;
+                    }
+                    if (data.description) {
+                        document.getElementById('expense_description_input').value = data.description;
+                    }
+                    alert('Voice input processed: ' + transcript);
+                } else {
+                    alert('Could not process voice input: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing voice input');
+            })
+            .finally(() => {
+                voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i> Voice Input';
+                voiceBtn.classList.remove('listening');
+            });
+        };
+        
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            alert('Voice recognition error: ' + event.error);
+            voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i> Voice Input';
+            voiceBtn.classList.remove('listening');
+        };
+        
+        recognition.onend = function() {
+            voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i> Voice Input';
+            voiceBtn.classList.remove('listening');
+        };
+    }
+</script>
+
+<!-- Add Recurring Expense Modal -->
+<div class="modal fade" id="addRecurringModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Add Recurring Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'add_recurring' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type *</label>
+                            <select name="expense_type" class="form-control" required>
+                                <option value="subscription">📱 Subscription (Netflix, Spotify, etc.)</option>
+                                <option value="emi">💳 EMI (Monthly Installments)</option>
+                                <option value="loan">🏦 Loan Payment</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g., Netflix Premium, Car EMI" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Monthly Amount (₹) *</label>
+                            <input type="number" name="amount" class="form-control" placeholder="Enter monthly payment" step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Billing Date (1-31) *</label>
+                            <input type="number" name="billing_date" class="form-control" placeholder="Day of month" min="1" max="31" required>
+                            <small class="form-text text-muted">Day of month when payment is due</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" name="start_date" class="form-control" id="start_date_home">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">End Date (Optional)</label>
+                            <input type="date" name="end_date" class="form-control">
+                            <small class="form-text text-muted">For EMI/Loans</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Reminder (Days Before)</label>
+                            <input type="number" name="reminder_days" class="form-control" value="3" min="0" max="30">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Additional notes"></textarea>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="auto_deduct" class="form-check-input" id="auto_deduct_home">
+                        <label class="form-check-label" for="auto_deduct_home">
+                            Auto-create expense transaction on due date
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Recurring Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-set today's date as start date
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('start_date_home');
+        if (startDateInput && !startDateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.value = today;
+        }
+    });
+</script>
+{% endblock content %}
+

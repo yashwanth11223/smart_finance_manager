@@ -1,0 +1,47 @@
+ <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+  <div class="container-fluid">
+    <a class="navbar-brand" href='#' style="font-weight: bold; font-size: 1.3rem; color: white;">💰 Smart Finance</a>
+    {% comment %} <a class="navbar-brand" href='{% url "financepage" %}' style="font-weight: bold; font-size: 1.3rem;">💰 Smart Finance</a> {% endcomment %}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border-color: rgba(255,255,255,0.5);">
+      <span class="navbar-toggler-icon" style="filter: brightness(0) invert(1);"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "homepage" %}' style="color: white; font-weight: 500;">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "transcationpage" %}' style="color: white; font-weight: 500;">Transactions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "recurring_expenses" %}' style="color: white; font-weight: 500;">🔔 Recurring</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "analyticspage" %}' style="color: white; font-weight: 500;">Analytics</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "pricingpage" %}' style="color: white; font-weight: 500;">Pricing</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white; font-weight: 500;">
+              👤 {{ user.username }}
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href='{% url "logoutpage" %}'>Logout</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "loginpage" %}' style="color: white; font-weight: 500;">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='{% url "signuppage" %}' style="background: white; color: #667eea; padding: 0.5rem 1rem; border-radius: 25px; font-weight: 600;">Sign Up</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,132 @@
+/* ==================== ANALYTICS STYLES ==================== */
+
+.analytics-header {
+    background: linear-gradient(135deg, #0f602a 0%, #1597bb 100%);
+    color: white;
+    padding: 40px 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(67, 233, 123, 0.3);
+}
+
+.analytics-header h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card {
+    background: white;
+    border-left: 5px solid #667eea;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.insights-box {
+    background: #f8f9fa;
+    border-left: 4px solid #764ba2;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.insight-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.insight-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.ai-suggestion {
+    background: white;
+    border-left: 4px solid #667eea;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.ai-suggestion.suggestion-success {
+    border-left-color: #27ae60;
+    background: #f0fdf4;
+}
+
+.ai-suggestion.suggestion-warning {
+    border-left-color: #f39c12;
+    background: #fffbf0;
+}
+
+.ai-suggestion.suggestion-danger {
+    border-left-color: #e74c3c;
+    background: #fff5f5;
+}
+
+.ai-suggestion.suggestion-info {
+    border-left-color: #3498db;
+    background: #f0f9ff;
+}
+
+.suggestion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.suggestion-emoji {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.suggestion-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.suggestion-message {
+    margin: 0;
+    color: #555;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .analytics-header {
+        padding: 20px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+}

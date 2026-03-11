@@ -1,0 +1,238 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Recurring Payments - Smart Finance Manager{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'home/css/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'home/css/recuring.css' %}">
+
+{% endblock css %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🔔 Recurring Payments</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecurringModal">
+            ➕ Add New
+        </button>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Summary Box -->
+    <div class="summary-box">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Total Monthly</div>
+                <h2>₹{{ total_monthly }}</h2>
+            </div>
+            <div class="col-md-4 text-center">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Active Recurring</div>
+                <h2>{{ recurring_expenses.count }}</h2>
+            </div>
+            <div class="col-md-4 text-center">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Due This Week</div>
+                <h2>{{ upcoming_payments|length|add:due_today|length }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Due Today Section -->
+    {% if due_today %}
+        <div class="alert alert-danger">
+            <h5><strong>⚠️ Payment Due Today!</strong></h5>
+            {% for expense in due_today %}
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div>
+                        <strong>{{ expense.name }}</strong> - ₹{{ expense.amount }}
+                        {% if expense.expense_type == 'subscription' %}📱{% elif expense.expense_type == 'emi' %}💳{% else %}🏦{% endif %}
+                    </div>
+                    <span class="badge-due-today">DUE TODAY</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Upcoming Payments Section -->
+    {% if upcoming_payments %}
+        <div class="alert alert-warning">
+            <h5><strong>📅 Upcoming Payments (Next {{ upcoming_payments.0.reminder_days }} Days)</strong></h5>
+            {% for expense in upcoming_payments %}
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div>
+                        <strong>{{ expense.name }}</strong> - ₹{{ expense.amount }} 
+                        (in {{ expense.days_until_next_payment }} day{{ expense.days_until_next_payment|pluralize }})
+                    </div>
+                    <span class="badge-upcoming">{{ expense.next_payment_date|date:"d M" }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- All Recurring Expenses -->
+    <h4 class="mt-4 mb-3">All Recurring Payments</h4>
+    
+    {% if recurring_expenses %}
+        {% for expense in recurring_expenses %}
+            <div class="recurring-card {{ expense.expense_type }}">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-1">
+                            {% if expense.expense_type == 'subscription' %}
+                                📱 {{ expense.name }}
+                            {% elif expense.expense_type == 'emi' %}
+                                💳 {{ expense.name }}
+                            {% else %}
+                                🏦 {{ expense.name }}
+                            {% endif %}
+                        </h5>
+                        <div class="text-muted">
+                            <small>
+                                {% if expense.expense_type == 'subscription' %}Subscription{% elif expense.expense_type == 'emi' %}EMI{% else %}Loan{% endif %}
+                                • Every {{ expense.billing_date }}th of month
+                            </small>
+                        </div>
+                        {% if expense.notes %}
+                            <div class="mt-2"><small>📝 {{ expense.notes }}</small></div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="text-muted" style="font-size: 0.85rem;">Next Payment</div>
+                        <div style="font-size: 1.1rem; font-weight: 600;">
+                            {{ expense.next_payment_date|date:"d M Y" }}
+                        </div>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            ({{ expense.days_until_next_payment }} day{{ expense.days_until_next_payment|pluralize }} left)
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #e74c3c;">
+                            ₹{{ expense.amount }}
+                        </div>
+                        <div class="text-muted" style="font-size: 0.85rem;">per month</div>
+                    </div>
+                    <div class="col-md-1 text-end">
+                        <a href="{% url 'delete_recurring' expense.id %}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to remove {{ expense.name }}?')">
+                            🗑️
+                        </a>
+                    </div>
+                </div>
+                
+                {% if expense.end_date %}
+                    <div class="mt-2">
+                        <small class="text-muted">📅 Ends on: {{ expense.end_date|date:"d M Y" }}</small>
+                    </div>
+                {% endif %}
+                
+                {% if expense.auto_deduct %}
+                    <div class="mt-2">
+                        <span class="badge bg-success">✓ Auto-deduct enabled</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h5 class="text-muted mb-3">No recurring payments yet</h5>
+                <p class="text-muted">Add your subscriptions, EMIs, and loans to track them easily!</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecurringModal">
+                    ➕ Add First Recurring Payment
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Recurring Expense Modal -->
+<div class="modal fade" id="addRecurringModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Add Recurring Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'add_recurring' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type *</label>
+                            {{ form.expense_type }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name *</label>
+                            {{ form.name }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Monthly Amount (₹) *</label>
+                            {{ form.amount }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Billing Date (1-31) *</label>
+                            {{ form.billing_date }}
+                            <small class="form-text text-muted">Day of month when payment is due</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Start Date</label>
+                            {{ form.start_date }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">End Date (Optional)</label>
+                            {{ form.end_date }}
+                            <small class="form-text text-muted">For EMI/Loans</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Reminder (Days Before)</label>
+                            {{ form.reminder_days }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        {{ form.notes }}
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        {{ form.auto_deduct }}
+                        <label class="form-check-label" for="auto_deduct_input">
+                            Auto-create expense transaction on due date
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Recurring Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-set today's date as start date
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('start_date_input');
+        if (startDateInput && !startDateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.value = today;
+        }
+    });
+</script>
+{% endblock content %}
